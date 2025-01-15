@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="MedSy.Views.User.PrescriptionPaymentPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:MedSy.Views.User"
+    xmlns:parentView="using:MedSy.Views"
+    xmlns:converters="using:MedSy.Converter.PrescriptionPayment"
+    xmlns:parentConverter="using:MedSy.Converter"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:local1="using:MedSy.Models"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <converters:StatusTextFgConverter x:Key="StatusTextFgConverter"/>
+        <converters:NullPrescriptionConverter x:Key="NullPrescriptionConverter"/>
+        <parentConverter:IntToVnCurrencyConverter x:Key="IntToVnCurrencyConverter"/>
+    </Page.Resources>
+    <Grid>
+        <Grid
+            x:Name="prescriptionField"
+            Background="#d4f3ff">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*"></RowDefinition>
+                <RowDefinition Height="1.5*"></RowDefinition>
+                <RowDefinition Height="7*"></RowDefinition>
+                <RowDefinition Height="3*"></RowDefinition>
+            </Grid.RowDefinitions>
+            
+            <ComboBox 
+                Name="PageComboBox"
+                BorderBrush="#333"
+                BorderThickness="1"
+                Grid.Row="0" 
+                Height="40"
+                CornerRadius="20"
+                Background="#336699"
+                Foreground="#fff"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                VerticalContentAlignment="Center"
+                FontSize="20"
+                FontWeight="SemiBold"
+                SelectionChanged="ComboBox_SelectionChanged">
+                <ComboBoxItem Name="prescription">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>
+                            <Run Text="Unpaid" Foreground="#fff"/><Run Text=" Prescription" Foreground="#45CFDD"/>
+                        </TextBlock>
+                    </StackPanel>
+                </ComboBoxItem>
+
+                <ComboBoxItem Name="pharmacy">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock>
+                            <Run Text="Paid" Foreground="#fff"/><Run Text=" Prescription" Foreground="#45CFDD"/>
+                        </TextBlock>
+                    </StackPanel>
+                </ComboBoxItem>
+            </ComboBox>
+
+            <ComboBox 
+                Grid.Row="1" 
+                BorderBrush="#666"
+                BorderThickness="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Top"
+                ItemsSource="{x:Bind prescriptionPaymentViewModel.prescriptions, Mode=OneWay}"
+                SelectedItem ="{x:Bind prescriptionPaymentViewModel.selectedPrescription, Mode=OneWay}"
+                SelectionChanged="Prescription_SelectionChanged"
+                CornerRadius="20"
+                Background="#B7B7B7"
+                Foreground="#fff"
+                Margin="20 0 20 0"
+                FontSize="20"
+                FontWeight="SemiBold"
+                PlaceholderText="Choose Your Prescription"
+                PlaceholderForeground="#fff">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock>
+                                <Run Text="Prescription"></Run> <Run Text="{Binding prescriptionId,Mode=OneWay}"></Run> - <Run Text="Consultation"></Run> <Run Text="{Binding consultationId, Mode=OneWay}"/></TextBlock>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+
+            <ListView 
+                Grid.Row="2" Margin="30 0 30 0" 
+                ItemsSource="{x:Bind prescriptionPaymentViewModel.prescriptionDetails, Mode=TwoWay}" 
+                CornerRadius="10" Background="#D9D9D9"
+                BorderBrush="#666" BorderThickness="1.2">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="local1:PrescriptionDetail">
+                        <Grid 
+                            Padding="5" CornerRadius="20" Background="Transparent"
+                            VerticalAlignment="Top" Margin="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="6*"/>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid Grid.Column="0"  BorderBrush="#666" BorderThickness="1" CornerRadius="20" Background="#fff">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="4*"/>
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" CornerRadius="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Image Source="ms-appx:///Assets/drug.jpg" Height="50" Width="50"/>
+                                </Border>
+                                <Border Grid.Column="1">
+                                    <TextBlock Text="{Binding drug.name}" Margin="10 0 0 0" FontSize="18" FontWeight="Bold" VerticalAlignment="Center" Foreground="#666"/>
+                                </Border>
+                            </Grid>
+                            <Border Grid.Column="1" BorderBrush="#666" BorderThickness="1" CornerRadius="20" Width="120" HorizontalAlignment="Center"  Background="#fff">
+                                <TextBlock FontSize="18" 
+                                               VerticalAlignment="Center" HorizontalAlignment="Center"
+                                               TextAlignment="Center" Foreground="#666" FontWeight="SemiBold">
+                                        <Run Text="{Binding quantity, Mode=TwoWay}"> </Run> <Run Text="{Binding drug.unit}"></Run>
+                                </TextBlock>
+                            </Border>
+
+                            <Border Grid.Column="2" BorderBrush="#666" BorderThickness="1" CornerRadius="20" Width="100" HorizontalAlignment="Center"  Background="#fff">
+                                <TextBlock Margin="5" Text="{Binding price, Mode=TwoWay, Converter={StaticResource IntToVnCurrencyConverter}}" FontSize="18" 
+                                VerticalAlignment="Center" HorizontalAlignment="Center" 
+                               Foreground="#666"  FontWeight="SemiBold"/>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Viewbox
+                MaxWidth="500"
+                Visibility="{x:Bind prescriptionPaymentViewModel.selectedPrescription, Mode=OneWay, Converter={StaticResource NullPrescriptionConverter}}"
+                Grid.Row="2">
+                <TextBlock
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Margin="20 0 20 0" Text="Choose prescription"
+                    FontWeight="Bold" Foreground="#000"/>
+            </Viewbox>
+            <Grid Grid.Row="3" Margin="20 0 20 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5*"/>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"></RowDefinition>
+                    <RowDefinition Height="1*"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Viewbox
+                    MaxWidth="100"
+                    Grid.Row="0"
+                    Grid.Column="0"
+                    VerticalAlignment="Center" HorizontalAlignment="Right">
+                    <TextBlock 
+                     Text="Total price:" FontWeight="SemiBold" Foreground="#000"/>
+                </Viewbox>
+                <Viewbox
+                    Grid.Column="1" Grid.Row="0"
+                    VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <TextBlock 
+                    Text="{x:Bind prescriptionPaymentViewModel.selectedPrescription.totalPrice, Mode=OneWay, Converter={StaticResource IntToVnCurrencyConverter}}" Margin="20 0 40 0"
+                    FontWeight="SemiBold" Foreground="#000" />
+                </Viewbox>
+                <Viewbox
+                    MaxWidth="100"
+                    Grid.Column="2" Grid.Row="0"
+                    VerticalAlignment="Center" HorizontalAlignment="Left">
+                    <TextBlock
+                    Text="{x:Bind prescriptionPaymentViewModel.selectedPrescription.status, Mode=OneWay}"
+                    FontWeight="SemiBold" Foreground="{x:Bind prescriptionPaymentViewModel.selectedPrescription.status, Mode=OneWay, Converter={StaticResource StatusTextFgConverter}}"/>
+                </Viewbox>
+
+                <Viewbox
+                    Grid.Row="1" Grid.Column="2">
+                    <Button 
+                        HorizontalAlignment="Left"
+                        BorderBrush="#333"
+                        BorderThickness="1"
+                        Content="Get Pay" 
+                        VerticalAlignment="Top"
+                        Background="#336699" 
+                        Foreground="#fff" 
+                        FontSize="20" 
+                        FontWeight="SemiBold" 
+                        CornerRadius="20"
+                        Click="PayButton_ClickAsync"
+                        Margin="0, 0, 40, 0">
+                    </Button>
+                </Viewbox>
+            </Grid>
+        
+        </Grid>
+        <WebView2
+            Visibility="Collapsed"
+            x:Name="paymentField"/>
+    </Grid>
+</Page>
